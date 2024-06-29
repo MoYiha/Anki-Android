@@ -55,10 +55,10 @@ import com.ichi2.libanki.utils.TimeManager
 import com.ichi2.testutils.AnkiActivityUtils.getDialogFragment
 import com.ichi2.testutils.AnkiAssert.assertDoesNotThrow
 import com.ichi2.testutils.AnkiAssert.assertDoesNotThrowSuspend
-import com.ichi2.testutils.Flaky
 import com.ichi2.testutils.IntentAssert
-import com.ichi2.testutils.OS
 import com.ichi2.testutils.TestClass
+import com.ichi2.testutils.common.Flaky
+import com.ichi2.testutils.common.OS
 import com.ichi2.testutils.getSharedPrefs
 import com.ichi2.ui.FixedTextView
 import com.ichi2.utils.LanguageUtil
@@ -1188,7 +1188,7 @@ class CardBrowserTest : RobolectricTest() {
         }.addNote("Test", "Blank")
 
         val question = CardCache(note.firstCard().id, col, 1, CARDS)
-            .getColumnHeaderText(CardBrowserColumn.QUESTION)
+            .getColumnHeaderText(QUESTION)
 
         assertThat(question, equalTo(""))
     }

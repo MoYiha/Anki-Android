@@ -1,4 +1,6 @@
 import com.android.build.api.dsl.CommonExtension
+import com.android.build.api.extension.impl.AndroidComponentsExtensionImpl
+import com.slack.keeper.optInToKeeper
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.internal.jvm.Jvm
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -29,6 +31,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization) apply false
     alias(libs.plugins.ktlint) apply false
     alias(libs.plugins.dokka) apply false
+    alias(libs.plugins.keeper) apply false
 }
 
 val localProperties = java.util.Properties()
@@ -63,6 +66,15 @@ subprojects {
                 it.forkEvery = 40
                 it.systemProperties["junit.jupiter.execution.parallel.enabled"] = true
                 it.systemProperties["junit.jupiter.execution.parallel.mode.default"] = "concurrent"
+            }
+
+            val androidComponentsExtension =
+                extensions.findByName("androidComponents") as AndroidComponentsExtensionImpl<*, *, *>
+            androidComponentsExtension.beforeVariants { builder ->
+                if (testReleaseBuild && builder.name == "playRelease")
+                {
+                    builder.optInToKeeper()
+                }
             }
         }
 
@@ -117,6 +129,11 @@ val ciBuild by extra(System.getenv("CI") == "true") // works for Travis CI or Gi
 val preDexEnabled by extra("true" == System.getProperty("pre-dex", "true"))
 // allows for universal APKs to be generated
 val universalApkEnabled by extra("true" == System.getProperty("universal-apk", "false"))
+
+val testReleaseBuild by extra(System.getenv("TEST_RELEASE_BUILD") == "true")
+var androidTestName by extra(
+    if (testReleaseBuild) "connectedPlayReleaseAndroidTest" else "connectedPlayDebugAndroidTest"
+)
 
 val gradleTestMaxParallelForks by extra(
     if (System.getProperty("os.name") == "Mac OS X") {
